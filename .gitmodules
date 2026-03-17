@@ -1,0 +1,3 @@
+[submodule "thirdparty_libs/thread_safe_print"]
+	path = thirdparty_libs/thread_safe_print
+	url = https://github.com/J-XZ/thread_safe_print.git
