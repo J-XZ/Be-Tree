@@ -16,6 +16,7 @@
         "tintinweb.vscode-inline-bookmarks",
         "jbockle.jbockle-format-files",
         "iliazeus.vscode-ansi",
-        "cschlosser.doxdocgen"
+        "cschlosser.doxdocgen",
+        "eshojaei.mbake-makefile-formatter"
     ]
 }

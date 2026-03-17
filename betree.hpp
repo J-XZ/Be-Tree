@@ -4,6 +4,12 @@
 // Values must be addable (via operator+).
 // See test.cpp for example usage.
 
+// 以 Key（键）和 Value（值）为模板参数的基础 Bᵉ 树实现。
+// 键和值必须支持序列化（参见 swap_space.hpp）。
+// 键必须支持比较运算（通过 operator< 和 operator==）。
+// 值必须支持加法运算（通过 operator+）。
+// 示例用法参见 test.cpp。
+
 // This implementation represents in-memory nodes as objects with two
 // fields:
 // - a std::map mapping keys to child pointers
@@ -11,9 +17,18 @@
 // Nodes are de/serialized to/from an on-disk representation.
 // I/O is managed transparently by a swap_space object.
 
+// 本实现将内存中的节点表示为包含两个字段的对象：
+// - 一个 std::map，建立键到子节点指针的映射
+// - 一个 std::map，建立（键，时间戳）对到消息的映射
+// 节点可与磁盘存储格式进行序列化/反序列化转换。
+// 输入输出操作由 swap_space 对象透明管理。
+
 // This implementation deviates from a "textbook" implementation in
 // that there is not a fixed division of a node's space between pivots
 // and buffered messages.
+
+// 该实现与“教科书式”实现有所不同，
+// 原因是节点空间并未在 pivot（枢纽/分界点）与缓冲消息之间进行固定划分。
 
 // In a textbook implementation, nodes have size B, B^e space is
 // devoted to pivots and child pointers, and B-B^e space is devoted to
@@ -25,11 +40,25 @@
 // always move a batch of size at least (B-B^e) / B^e = B^(1-e) - 1
 // messages.
 
+// 在教科书式实现中，节点大小固定为 B，其中 B^e
+// 空间用于存储枢纽（pivot）和子节点指针， B-B^e 空间用于消息缓冲。
+// 每当叶子节点的消息数量过多时，就会执行分裂操作；
+// 每当内部节点的消息数量过多时，就会执行刷新（flush）操作；
+// 每当内部节点的子节点数量过多时，也会执行分裂操作。
+// 该策略保证：当树需要将消息从节点刷新到其子节点时，
+// 总能批量移动至少 (B-B^e) / B^e = B^(1-e) - 1 条消息。
+
 // In this implementation, nodes have a fixed maximum size.  Whenever
 // a leaf exceeds this max size, it splits.  Whenever an internal node
 // exceeds this maximum size, it checks to see if it can flush a large
 // batch of elements to one of its children.  If it can, it does so.
 // If it cannot, then it splits.
+
+// 在本实现中，节点具有固定的最大容量。
+// 每当叶子节点超出该最大容量时，就会执行分裂操作。
+// 每当内部节点超出该最大容量时，会先检查是否能向其子节点批量刷新大量元素。
+// 如果可以，则执行批量刷新；
+// 如果不可以，则执行分裂操作。
 
 // In-memory nodes may temporarily exceed the maximum size
 // restriction.  During a flush, we move all the incoming messages
@@ -38,6 +67,12 @@
 // splits to restore the max-size invariant.  Thus, whenever a flush
 // returns, all the nodes in the subtree of that node are guaranteed
 // to satisfy the max-size requirement.
+
+// 内存中的节点可能会临时超出最大容量限制。
+// 在执行刷新操作时，我们会将所有传入的消息移入目标节点。
+// 此时该节点可能会超出最大容量。
+// 随后，刷新流程会继续执行后续的刷新或分裂操作，以恢复最大容量不变性。
+// 因此，每当一次刷新操作完成返回时，该节点子树中的所有节点都必定满足最大容量要求。
 
 // This implementation also optimizes I/O based on which nodes are
 // on-disk, clean in memory, or dirty in memory.  For example,
@@ -49,6 +84,15 @@
 // in-memory nodes than to on-disk nodes.  This is because dirtying a
 // clean in-memory node only requires a write-back, whereas flushing
 // to an on-disk node requires reading it in and writing it out.
+
+// 本实现还会根据节点的状态（磁盘节点、内存干净节点、内存脏节点）对 I/O
+// 进行优化。
+// 例如：插入的数据项会立即沿着树结构尽可能向下刷新，且不会污染任何新的节点。
+// 这是因为将数据项刷新到已为脏节点的节点上，不会产生任何额外 I/O 开销——
+// 该节点原本就需要被写回磁盘。
+// 此外，相比于磁盘节点，本实现会向内存干净节点刷新更小的批量数据。
+// 这是因为将内存干净节点标记为脏节点仅需要一次写回操作，
+// 而刷新数据到磁盘节点则需要先将节点读入内存，再写回磁盘。
 
 #include "backing_store.hpp"
 #include "swap_space.hpp"

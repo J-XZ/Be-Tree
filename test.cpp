@@ -256,6 +256,7 @@ void benchmark_queries(betree<uint64_t, std::string> &b, uint64_t nops,
 }
 
 int main(int argc, char **argv) {
+  
   char *mode = NULL;
   uint64_t max_node_size = DEFAULT_TEST_MAX_NODE_SIZE;
   uint64_t min_flush_size = DEFAULT_TEST_MIN_FLUSH_SIZE;
