@@ -1,0 +1,74 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-Wall",
+      "-std=c++11",
+      "-g",
+      "-pg",
+      "-DDEBUG",
+      "-c",
+      "-o",
+      "swap_space.o",
+      "swap_space.cpp"
+    ],
+    "directory": "/root/code/cxlkv/tmp/Be-Tree",
+    "file": "/root/code/cxlkv/tmp/Be-Tree/swap_space.cpp",
+    "output": "/root/code/cxlkv/tmp/Be-Tree/swap_space.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-Wall",
+      "-std=c++11",
+      "-g",
+      "-pg",
+      "-DDEBUG",
+      "-c",
+      "-o",
+      "backing_store.o",
+      "backing_store.cpp"
+    ],
+    "directory": "/root/code/cxlkv/tmp/Be-Tree",
+    "file": "/root/code/cxlkv/tmp/Be-Tree/backing_store.cpp",
+    "output": "/root/code/cxlkv/tmp/Be-Tree/backing_store.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-Wall",
+      "-std=c++11",
+      "-g",
+      "-pg",
+      "-DDEBUG",
+      "swap_space.o",
+      "backing_store.o",
+      "-o",
+      "test",
+      "test.cpp"
+    ],
+    "directory": "/root/code/cxlkv/tmp/Be-Tree",
+    "file": "/root/code/cxlkv/tmp/Be-Tree/test.cpp",
+    "output": "/root/code/cxlkv/tmp/Be-Tree/test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-Wall",
+      "-std=c++11",
+      "-g",
+      "-pg",
+      "-DDEBUG",
+      "swap_space.o",
+      "backing_store.o",
+      "-o",
+      "test",
+      "betree.hpp"
+    ],
+    "directory": "/root/code/cxlkv/tmp/Be-Tree",
+    "file": "/root/code/cxlkv/tmp/Be-Tree/betree.hpp",
+    "output": "/root/code/cxlkv/tmp/Be-Tree/test"
+  }
+]

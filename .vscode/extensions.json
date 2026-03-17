@@ -1,0 +1,21 @@
+{
+    "recommendations": [
+        "mads-hartmann.bash-ide-vscode",
+        "github.copilot-chat",
+        "josetr.cmake-language-support-vscode",
+        "llvm-vs-code-extensions.vscode-clangd",
+        "vadimcn.vscode-lldb",
+        "aaron-bond.better-comments",
+        "mkhl.shfmt",
+        "ms-python.black-formatter",
+        "ms-python.python",
+        "rust-lang.rust-analyzer",
+        "bmalehorn.vscode-fish",
+        "github.vscode-github-actions",
+        "rogalmic.bash-debug",
+        "tintinweb.vscode-inline-bookmarks",
+        "jbockle.jbockle-format-files",
+        "iliazeus.vscode-ansi",
+        "cschlosser.doxdocgen"
+    ]
+}

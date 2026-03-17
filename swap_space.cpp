@@ -1,39 +1,37 @@
 #include "swap_space.hpp"
 
-void serialize(std::iostream &fs, serialization_context &context, uint64_t x)
-{
+void serialize(std::iostream &fs, serialization_context &context, uint64_t x) {
   fs << x << " ";
   assert(fs.good());
 }
 
-void deserialize(std::iostream &fs, serialization_context &context, uint64_t &x)
-{
+void deserialize(std::iostream &fs, serialization_context &context,
+                 uint64_t &x) {
   fs >> x;
   assert(fs.good());
 }
 
-void serialize(std::iostream &fs, serialization_context &context, int64_t x)
-{
+void serialize(std::iostream &fs, serialization_context &context, int64_t x) {
   fs << x << " ";
   assert(fs.good());
 }
 
-void deserialize(std::iostream &fs, serialization_context &context, int64_t &x)
-{
+void deserialize(std::iostream &fs, serialization_context &context,
+                 int64_t &x) {
   fs >> x;
   assert(fs.good());
 }
 
-void serialize(std::iostream &fs, serialization_context &context, std::string x)
-{
+void serialize(std::iostream &fs, serialization_context &context,
+               std::string x) {
   fs << x.size() << ",";
   assert(fs.good());
   fs.write(x.data(), x.size());
   assert(fs.good());
 }
 
-void deserialize(std::iostream &fs, serialization_context &context, std::string &x)
-{
+void deserialize(std::iostream &fs, serialization_context &context,
+                 std::string &x) {
   size_t length;
   char comma;
   fs >> length >> comma;
@@ -46,18 +44,16 @@ void deserialize(std::iostream &fs, serialization_context &context, std::string 
   delete buf;
 }
 
-bool swap_space::cmp_by_last_access(swap_space::object *a, swap_space::object *b) {
+bool swap_space::cmp_by_last_access(swap_space::object *a,
+                                    swap_space::object *b) {
   return a->last_access < b->last_access;
 }
 
-swap_space::swap_space(backing_store *bs, uint64_t n) :
-  backstore(bs),
-  max_in_memory_objects(n),
-  objects(),
-  lru_pqueue(cmp_by_last_access)
-{}
+swap_space::swap_space(backing_store *bs, uint64_t n)
+    : backstore(bs), max_in_memory_objects(n), objects(),
+      lru_pqueue(cmp_by_last_access) {}
 
-swap_space::object::object(swap_space *sspace, serializable * tgt) {
+swap_space::object::object(swap_space *sspace, serializable *tgt) {
   target = tgt;
   id = sspace->next_id++;
   bsid = 0;
@@ -74,13 +70,11 @@ void swap_space::set_cache_size(uint64_t sz) {
   maybe_evict_something();
 }
 
-void swap_space::write_back(swap_space::object *obj)
-{
+void swap_space::write_back(swap_space::object *obj) {
   assert(objects.count(obj->id) > 0);
 
-  debug(std::cout << "Writing back " << obj->id
-	<< " (" << obj->target << ") "
-	<< "with last access time " << obj->last_access << std::endl);
+  debug(std::cout << "Writing back " << obj->id << " (" << obj->target << ") "
+                  << "with last access time " << obj->last_access << std::endl);
 
   // This calls _serialize on all the pointers in this object,
   // which keeps refcounts right later on when we delete them all.
@@ -105,24 +99,22 @@ void swap_space::write_back(swap_space::object *obj)
   }
 }
 
-void swap_space::maybe_evict_something(void)
-{
+void swap_space::maybe_evict_something(void) {
   while (current_in_memory_objects > max_in_memory_objects) {
     object *obj = NULL;
     for (auto it = lru_pqueue.begin(); it != lru_pqueue.end(); ++it)
       if ((*it)->pincount == 0) {
-	obj = *it;
-	break;
+        obj = *it;
+        break;
       }
     if (obj == NULL)
       return;
     lru_pqueue.erase(obj);
 
     write_back(obj);
-    
+
     delete obj->target;
     obj->target = NULL;
     current_in_memory_objects--;
   }
 }
-

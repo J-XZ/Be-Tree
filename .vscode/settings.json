@@ -1,0 +1,19 @@
+{
+    "rust-analyzer.linkedProjects": [],
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
+    "terminal.integrated.defaultProfile.linux": "fish",
+    "editor.fontSize": 15,
+    "remote.SSH.defaultForwardedPorts": [
+        // {
+        //     "localPort": 10022,
+        //     "remotePort": 10022,
+        //     "label": "VM0 SSH"
+        // },
+        // {
+        //     "localPort": 10023,
+        //     "remotePort": 10023,
+        //     "label": "VM1 SSH"
+        // }
+    ]
+}

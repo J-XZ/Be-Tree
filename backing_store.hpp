@@ -4,29 +4,29 @@
 #ifndef BACKING_STORE_HPP
 #define BACKING_STORE_HPP
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <iostream>
 
 class backing_store {
 public:
   virtual uint64_t allocate(size_t n) = 0;
   virtual void deallocate(uint64_t id) = 0;
-  virtual std::iostream * get(uint64_t id) = 0;
-  virtual void            put(std::iostream *ios) = 0;
+  virtual std::iostream *get(uint64_t id) = 0;
+  virtual void put(std::iostream *ios) = 0;
 };
 
-class one_file_per_object_backing_store: public backing_store {
+class one_file_per_object_backing_store : public backing_store {
 public:
   one_file_per_object_backing_store(std::string rt);
-  uint64_t	  allocate(size_t n);
-  void		  deallocate(uint64_t id);
-  std::iostream * get(uint64_t id);
-  void            put(std::iostream *ios);
-  
+  uint64_t allocate(size_t n);
+  void deallocate(uint64_t id);
+  std::iostream *get(uint64_t id);
+  void put(std::iostream *ios);
+
 private:
-  std::string	root;
-  uint64_t	nextid;
+  std::string root;
+  uint64_t nextid;
 };
 
 #endif // BACKING_STORE_HPP
