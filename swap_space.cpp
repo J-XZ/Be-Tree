@@ -92,23 +92,28 @@ void swap_space::write_back(swap_space::object *obj) {
     std::iostream *out = backstore->get(bsid);
     out->write(buffer.data(), buffer.length());
     backstore->put(out);
-    if (obj->bsid > 0)
+    if (obj->bsid > 0) {
       backstore->deallocate(obj->bsid);
+    }
     obj->bsid = bsid;
     obj->target_is_dirty = false;
   }
 }
 
 void swap_space::maybe_evict_something(void) {
+  // [swap] 定期检查当前内存中的对象数量是否超过了设定的最大值，如果超过了，
+  // 就按照 LRU 策略选择一个未被访问的对象进行写回和删除。
   while (current_in_memory_objects > max_in_memory_objects) {
     object *obj = NULL;
-    for (auto it = lru_pqueue.begin(); it != lru_pqueue.end(); ++it)
+    for (auto it = lru_pqueue.begin(); it != lru_pqueue.end(); ++it) {
       if ((*it)->pincount == 0) {
         obj = *it;
         break;
       }
-    if (obj == NULL)
+    }
+    if (obj == NULL) {
       return;
+    }
     lru_pqueue.erase(obj);
 
     write_back(obj);

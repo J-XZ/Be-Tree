@@ -5,14 +5,12 @@
             "name": "Debug Benchmark Upserts",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/test",
+            "program": "${workspaceFolder}/build/test",
             "args": [
                 "-d",
                 "tmpdir",
                 "-m",
-                "benchmark-upserts",
-                "-t",
-                "1000000"
+                "self_test",
             ],
             "cwd": "${workspaceFolder}",
             "stopOnEntry": false,

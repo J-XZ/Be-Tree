@@ -3,10 +3,16 @@ project(BeTree)
 
 # 导出 compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # 使用ccache
 find_program(CCACHE_PROGRAM ccache)
+
+# use clang++, optimize for debugging
+set(CMAKE_CXX_COMPILER "clang++-18")
+set(CMAKE_C_COMPILER "clang-18")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -DDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 if(CCACHE_PROGRAM)
     message(STATUS "Using ccache: ${CCACHE_PROGRAM}")

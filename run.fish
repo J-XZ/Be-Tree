@@ -1,6 +1,6 @@
 #!/usr/bin/fish
 
-build.fish
+./build.fish
 rm -rf tmpdir
 mkdir tmpdir
-./test -d tmpdir -m benchmark-upserts -t 1000000
+./build/test -d tmpdir -m benchmark-upserts -t 1000000

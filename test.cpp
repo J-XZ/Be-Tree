@@ -10,17 +10,29 @@
 // on the values, this test performs concatenation on the strings.
 
 #include "betree.hpp"
+#include "thread_safe_printx.h"
+#include <cstdint>
+#include <getopt.h>
 #include <string.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+/**
+ * @brief 单位为微秒的计时器函数，timer_start 用于开始计时，timer_stop
+ * 用于停止计时并计算总耗时。
+ * 这两个函数使用 gettimeofday 获取当前时间，并将其转换为微秒级别的计时器值。
+ * 调用 timer_start 时，timer 的值会被设置为当前时间的负值；
+ * 调用 timer_stop 时，timer 的值会加上当前时间，
+ * 从而得到微秒为单位的总耗时。
+ *
+ * @param timer
+ */
 void timer_start(uint64_t &timer) {
   struct timeval t;
   assert(!gettimeofday(&t, NULL));
   timer -= 1000000 * t.tv_sec + t.tv_usec;
 }
-
 void timer_stop(uint64_t &timer) {
   struct timeval t;
   assert(!gettimeofday(&t, NULL));
@@ -227,10 +239,33 @@ void benchmark_upserts(betree<uint64_t, std::string> &b, uint64_t nops,
       b.update(t, std::to_string(t) + ":");
     }
     timer_stop(timer);
+
+    // 每完成总操作数的1%，就打印一次当前任务的进度（百分之多少），
+    // 当前已经完成的操作数，以及这一段时间的耗时（单位是微秒）。
     printf("%ld %ld %ld\n", j, nops / 100, timer);
     overall_timer += timer;
   }
   printf("# overall: %ld %ld\n", 100 * (nops / 100), overall_timer);
+}
+
+// 默认key类型是 uint64_t，默认value类型是 std::string
+void self_test(betree<uint64_t, std::string> &b) {
+  b.insert(1, "1");
+  auto v = b.query(1);
+  thread_safe_print::ThreadSafePrintLineToAllert("key:", 1, " value:", v);
+
+  b.update(1, "2");
+  // 本实现的默认操作是，update把新的值和旧的值相加。
+  // 由于默认的值类型是字符串，因此相加就是字符串拼接。
+
+  // 第二次查询应该看到 12
+  v = b.query(1);
+  thread_safe_print::ThreadSafePrintLineToAllert("key:", 1, " value:", v);
+
+  uint64_t op_cnt = 100000;
+  for (uint64_t i = 0; i < op_cnt; i++) {
+    b.update(i, "x");
+  }
 }
 
 void benchmark_queries(betree<uint64_t, std::string> &b, uint64_t nops,
@@ -256,6 +291,10 @@ void benchmark_queries(betree<uint64_t, std::string> &b, uint64_t nops,
 }
 
 int main(int argc, char **argv) {
+  thread_safe_print::ThreadSafePrintLine("argc:", argc);
+  for (int i = 0; i < argc; i++) {
+    thread_safe_print::ThreadSafePrintLine("argv[", i, "]: ", argv[i]);
+  }
 
   char *mode = NULL;
   uint64_t max_node_size = DEFAULT_TEST_MAX_NODE_SIZE;
@@ -349,7 +388,8 @@ int main(int argc, char **argv) {
 
   if (mode == NULL ||
       (strcmp(mode, "test") != 0 && strcmp(mode, "benchmark-upserts") != 0 &&
-       strcmp(mode, "benchmark-queries") != 0)) {
+       strcmp(mode, "benchmark-queries") != 0) &&
+          strcmp(mode, "self_test") != 0) {
     std::cerr << "Must specify a mode of \"test\" or \"benchmark\""
               << std::endl;
     usage(argv[0]);
@@ -403,12 +443,16 @@ int main(int argc, char **argv) {
   swap_space sspace(&ofpobs, cache_size);
   betree<uint64_t, std::string> b(&sspace, max_node_size, min_flush_size);
 
-  if (strcmp(mode, "test") == 0)
+  if (strcmp(mode, "test") == 0) {
     test(b, nops, number_of_distinct_keys, script_input, script_output);
-  else if (strcmp(mode, "benchmark-upserts") == 0)
+  } else if (strcmp(mode, "benchmark-upserts") == 0) {
+    // 默认走这个分支
     benchmark_upserts(b, nops, number_of_distinct_keys, random_seed);
-  else if (strcmp(mode, "benchmark-queries") == 0)
+  } else if (strcmp(mode, "benchmark-queries") == 0) {
     benchmark_queries(b, nops, number_of_distinct_keys, random_seed);
+  } else if (strcmp(mode, "self_test") == 0) {
+    self_test(b);
+  }
 
   if (script_input)
     fclose(script_input);
